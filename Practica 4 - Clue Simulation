@@ -1,0 +1,151 @@
+# -*- coding: utf-8 -*-
+"""
+
+@author: Edgar Abraham Ruíz Ayala 
+"""
+
+import random
+import tkinter as tk
+from tkinter import messagebox
+
+# Definición de personajes, locaciones y armas con descripciones
+personajes = [
+    {"nombre": "Claudia Rodríguez", "profesion": "Actriz", "descripcion": "Una actriz apasionada con un misterioso pasado."},
+    {"nombre": "Profesor Juancho", "profesion": "Profesor de Psicología", "descripcion": "Un académico brillante pero con secretos oscuros."},
+    {"nombre": "Doña Juana", "profesion": "Ama de casa", "descripcion": "La ama de llaves leal pero reservada de la mansión."},
+    {"nombre": "Policía con tenis", "profesion": "Policía retirado", "descripcion": "Un veterano de la policía con métodos poco convencionales."},
+    {"nombre": "Carolina", "profesion": "Filántropa", "descripcion": "Una dama de alta sociedad con intereses particulares."}
+]
+
+locaciones = [
+    {"nombre": "Salón", "descripcion": "Un salón decorado con antigüedades valiosas."},
+    {"nombre": "Cocina", "descripcion": "La cocina de la mansión, donde siempre hay movimiento."},
+    {"nombre": "Biblioteca", "descripcion": "La biblioteca con estantes altos y libros polvorientos."},
+    {"nombre": "Comedor", "descripcion": "Un comedor con una mesa larga y candelabros."},
+    {"nombre": "Invernadero", "descripcion": "El invernadero con plantas exóticas y humedad en el aire."}
+]
+
+armas = [
+    {"nombre": "Cuchillo", "descripcion": "Un cuchillo afilado que podría ser mortal en manos equivocadas."},
+    {"nombre": "Revolver", "descripcion": "Un revolver que desapareció de la colección del coronel."},
+    {"nombre": "Cuerda", "descripcion": "Una cuerda gruesa, perfecta para un acto de violencia silenciosa."},
+    {"nombre": "Candelabro", "descripcion": "Un pesado candelabro de bronce."},
+    {"nombre": "Veneno", "descripcion": "Un veneno letal de origen desconocido."}
+]
+
+# Combinaciones de historias detalladas con narrativa para cinco casos específicos
+detalles_historias = {
+    ("Claudia Rodríguez", "Cuchillo", "Salón"): "Claudia Rodríguez fue vista discutiendo con la víctima en el salón antes del asesinato.",
+    ("Profesor Juancho", "Revolver", "Biblioteca"): "El Profesor Juancho llevaba el revolver y disparó tras un altercado en la biblioteca.",
+    ("Doña Juana", "Candelabro", "Cocina"): "Doña Juana usó el candelabro para defenderse durante un enfrentamiento en la cocina.",
+    ("Policía con tenis", "Veneno", "Comedor"): "El Policía con tenis añadió veneno a la bebida en el comedor durante la cena.",
+    ("Carolina", "Cuerda", "Invernadero"): "Carolina estranguló a la víctima con una cuerda en el invernadero tras una disputa."
+}
+
+# Selección al azar del caso
+def seleccionar_caso():
+    culpable = random.choice(personajes)
+    arma = random.choice(armas)
+    locacion = random.choice(locaciones)
+    return culpable, arma, locacion
+
+# Obtener historia detallada del caso
+def obtener_historia_detalle(culpable, arma, locacion):
+    key = (culpable["nombre"], arma["nombre"], locacion["nombre"])
+    return detalles_historias.get(key, "No hay historia disponible para esta combinación.")
+
+# Generador de pistas lógicas basadas en el caso seleccionado
+def generar_pistas(culpable, arma, locacion):
+    pistas = []
+    pistas.append(f"Se encontró una huella dactilar de {culpable['nombre']} en el {arma['nombre']}.")
+    pistas.append(f"Testigos vieron a {culpable['nombre']} en el {locacion['nombre']} antes del asesinato.")
+    pistas.append(f"El {arma['nombre']} estaba ligeramente oculto en la {locacion['nombre']}.")
+    pistas.append(f"{culpable['nombre']} fue escuchado discutiendo con la víctima antes del incidente.")
+    pistas.append(f"Se observó a alguien similar a {culpable['nombre']} merodeando en el {locacion['nombre']}.")
+    pistas.append(f"En la escena, se encontró {random.choice(['cabello', 'una prenda'])} de {culpable['nombre']}.")
+    return random.sample(pistas, 3)  # Tres pistas seleccionadas al azar
+
+# Función para mostrar mensaje en Tkinter
+def mostrar_mensaje(titulo, mensaje):
+    messagebox.showinfo(titulo, mensaje)
+
+# Clase principal del juego
+class ClueJuego:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Simulador de Clue")
+
+        # Generar caso aleatorio
+        self.culpable, self.arma, self.locacion = seleccionar_caso()
+        self.historia_detalle = obtener_historia_detalle(self.culpable, self.arma, self.locacion)
+        self.pistas = generar_pistas(self.culpable, self.arma, self.locacion)
+
+        # Contador de intentos
+        self.intentos_restantes = 5
+
+        # Historia inicial y detalle de la víctima y el arma
+        introduccion_historia = f"Un asesinato ha ocurrido en la mansión. La víctima es Roberto Carlos.\n"
+        introduccion_historia += f"Se ha confirmado que el Dr. Roberto Carlos fue atacado con {self.arma['nombre']} en {self.locacion['nombre']}.\n"
+        historia_label = tk.Label(root, text=introduccion_historia, wraplength=400, justify="left")
+        historia_label.pack(pady=10)
+
+        # Introducción de personajes, locaciones y armas
+        introduccion = "Estos son los personajes sospechosos:\n\n"
+        for p in personajes:
+            introduccion += f"{p['nombre']} ({p['profesion']}): {p['descripcion']}\n"
+        introduccion += "\nLocaciones sospechosas:\n"
+        for l in locaciones:
+            introduccion += f"{l['nombre']}: {l['descripcion']}\n"
+        introduccion += "\nArmas posibles:\n"
+        for a in armas:
+            introduccion += f"{a['nombre']}: {a['descripcion']}\n"
+
+        introduccion_label = tk.Label(root, text=introduccion, wraplength=400, justify="left")
+        introduccion_label.pack(pady=10)
+
+        # Botones de interacción
+        self.opciones_frame = tk.Frame(root)
+        self.opciones_frame.pack(pady=10)
+        tk.Button(self.opciones_frame, text="Obtener pista", command=self.obtener_pista).grid(row=0, column=0, padx=5)
+        tk.Button(self.opciones_frame, text="Acusar", command=self.acusar).grid(row=1, column=0, pady=10)
+
+    def obtener_pista(self):
+        if self.intentos_restantes > 0:
+            pista = self.pistas.pop(0) if self.pistas else "No hay más pistas disponibles."
+            mostrar_mensaje("Pista", pista)
+            self.intentos_restantes -= 1
+        else:
+            mostrar_mensaje("Sin Intentos", "Te has quedado sin intentos para hacer preguntas.")
+
+    def acusar(self):
+        acusacion_personaje = tk.StringVar(value="Selecciona al culpable")
+        acusacion_arma = tk.StringVar(value="Selecciona el arma")
+        acusacion_locacion = tk.StringVar(value="Selecciona la locación")
+        
+        acusacion_win = tk.Toplevel(self.root)
+        acusacion_win.title("Realizar Acusación")
+        
+        tk.Label(acusacion_win, text="Elige al culpable:").pack()
+        tk.OptionMenu(acusacion_win, acusacion_personaje, *[p['nombre'] for p in personajes]).pack()
+        
+        tk.Label(acusacion_win, text="Elige el arma:").pack()
+        tk.OptionMenu(acusacion_win, acusacion_arma, *[a['nombre'] for a in armas]).pack()
+
+        tk.Label(acusacion_win, text="Elige la locación:").pack()
+        tk.OptionMenu(acusacion_win, acusacion_locacion, *[l['nombre'] for l in locaciones]).pack()
+
+        def confirmar_acusacion():
+            if (acusacion_personaje.get() == self.culpable["nombre"] and
+                acusacion_arma.get() == self.arma["nombre"] and
+                acusacion_locacion.get() == self.locacion["nombre"]):
+                mostrar_mensaje("¡Correcto!", f"¡Has resuelto el caso!\n{self.historia_detalle}")
+            else:
+                mostrar_mensaje("Incorrecto", f"Tu acusación es incorrecta. El verdadero culpable era {self.culpable['nombre']} en {self.locacion['nombre']} con {self.arma['nombre']}.\n\nHistoria: {self.historia_detalle}")
+            acusacion_win.destroy()
+
+        tk.Button(acusacion_win, text="Confirmar acusación", command=confirmar_acusacion).pack(pady=10)
+
+# Configuración de la ventana de Tkinter
+root = tk.Tk()
+juego = ClueJuego(root)
+root.mainloop()
